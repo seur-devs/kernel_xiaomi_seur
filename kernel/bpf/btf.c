@@ -1145,7 +1145,7 @@ static int btf_ptr_check_member(struct btf_verifier_env *env,
 		return -EINVAL;
 	}
 
-	if (struct_size - bytes_offset < sizeof(void *)) {
+	if (struct_size - bytes_offset < member_type->size) {
 		btf_verifier_log_member(env, struct_type, member,
 					"Member exceeds struct_size");
 		return -EINVAL;
