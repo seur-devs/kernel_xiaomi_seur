@@ -41,8 +41,7 @@ static int init_inode_xattrs(struct inode *inode)
 	struct xattr_iter it;
 	unsigned int i;
 	struct erofs_xattr_ibody_header *ih;
-	struct super_block *sb;
-	struct erofs_sb_info *sbi;
+	struct super_block *sb = inode->i_sb;
 	bool atomic_map;
 	int ret = 0;
 
@@ -72,15 +71,14 @@ static int init_inode_xattrs(struct inode *inode)
 	 *    undefined right now (maybe use later with some new sb feature).
 	 */
 	if (vi->xattr_isize == sizeof(struct erofs_xattr_ibody_header)) {
-		erofs_err(inode->i_sb,
+		erofs_err(sb,
 			  "xattr_isize %d of nid %llu is not supported yet",
 			  vi->xattr_isize, vi->nid);
 		ret = -EOPNOTSUPP;
 		goto out_unlock;
 	} else if (vi->xattr_isize < sizeof(struct erofs_xattr_ibody_header)) {
 		if (vi->xattr_isize) {
-			erofs_err(inode->i_sb,
-				  "bogus xattr ibody @ nid %llu", vi->nid);
+			erofs_err(sb, "bogus xattr ibody @ nid %llu", vi->nid);
 			DBG_BUGON(1);
 			ret = -EFSCORRUPTED;
 			goto out_unlock;	/* xattr ondisk layout error */
@@ -89,10 +87,8 @@ static int init_inode_xattrs(struct inode *inode)
 		goto out_unlock;
 	}
 
-	sb = inode->i_sb;
-	sbi = EROFS_SB(sb);
-	it.blkaddr = erofs_blknr(iloc(sbi, vi->nid) + vi->inode_isize);
-	it.ofs = erofs_blkoff(iloc(sbi, vi->nid) + vi->inode_isize);
+	it.blkaddr = erofs_blknr(erofs_iloc(inode) + vi->inode_isize);
+	it.ofs = erofs_blkoff(erofs_iloc(inode) + vi->inode_isize);
 
 	it.page = erofs_get_meta_page(sb, it.blkaddr);
 	if (IS_ERR(it.page)) {
@@ -193,7 +189,6 @@ static int inline_xattr_iter_begin(struct xattr_iter *it,
 				   struct inode *inode)
 {
 	struct erofs_inode *const vi = EROFS_I(inode);
-	struct erofs_sb_info *const sbi = EROFS_SB(inode->i_sb);
 	unsigned int xattr_header_sz, inline_xattr_ofs;
 
 	xattr_header_sz = inlinexattr_header_size(inode);
@@ -204,9 +199,8 @@ static int inline_xattr_iter_begin(struct xattr_iter *it,
 
 	inline_xattr_ofs = vi->inode_isize + xattr_header_sz;
 
-	it->blkaddr = erofs_blknr(iloc(sbi, vi->nid) + inline_xattr_ofs);
-	it->ofs = erofs_blkoff(iloc(sbi, vi->nid) + inline_xattr_ofs);
-
+	it->blkaddr = erofs_blknr(erofs_iloc(inode) + inline_xattr_ofs);
+	it->ofs = erofs_blkoff(erofs_iloc(inode) + inline_xattr_ofs);
 	it->page = erofs_get_meta_page(inode->i_sb, it->blkaddr);
 	if (IS_ERR(it->page))
 		return PTR_ERR(it->page);
