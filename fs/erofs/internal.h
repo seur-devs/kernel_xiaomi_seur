@@ -272,12 +272,6 @@ struct erofs_inode {
 #define EROFS_I(ptr)	\
 	container_of(ptr, struct erofs_inode, vfs_inode)
 
-static inline unsigned long erofs_inode_datablocks(struct inode *inode)
-{
-	/* since i_size cannot be changed */
-	return DIV_ROUND_UP(inode->i_size, EROFS_BLKSIZ);
-}
-
 static inline unsigned int erofs_bitrange(unsigned int value, unsigned int bit,
 					  unsigned int bits)
 {

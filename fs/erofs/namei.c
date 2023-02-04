@@ -4,7 +4,6 @@
  *             https://www.huawei.com/
  */
 #include "xattr.h"
-
 #include <trace/events/erofs.h>
 
 struct erofs_qstr {
@@ -86,18 +85,12 @@ static struct erofs_dirent *find_target_dirent(struct erofs_qstr *name,
 	return ERR_PTR(-ENOENT);
 }
 
-static struct page *find_target_block_classic(struct inode *dir,
-					      struct erofs_qstr *name,
-					      int *_ndirents)
+static struct page *erofs_find_target_block(struct inode *dir, struct erofs_qstr *name, int *_ndirents)
 {
-	unsigned int startprfx, endprfx;
-	int head, back;
+	int head = 0, back = DIV_ROUND_UP(dir->i_size, EROFS_BLKSIZ) - 1;
+	unsigned int startprfx = 0, endprfx = 0;
 	struct address_space *const mapping = dir->i_mapping;
 	struct page *candidate = ERR_PTR(-ENOENT);
-
-	startprfx = endprfx = 0;
-	head = 0;
-	back = erofs_inode_datablocks(dir) - 1;
 
 	while (head <= back) {
 		const int mid = head + (back - head) / 2;
@@ -181,7 +174,7 @@ int erofs_namei(struct inode *dir,
 	qn.end = name->name + name->len;
 
 	ndirents = 0;
-	page = find_target_block_classic(dir, &qn, &ndirents);
+	page = erofs_find_target_block(dir, &qn, &ndirents);
 
 	if (IS_ERR(page))
 		return PTR_ERR(page);
