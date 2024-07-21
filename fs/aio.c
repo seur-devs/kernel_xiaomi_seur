@@ -1645,11 +1645,7 @@ static bool poll_iocb_lock_wq(struct poll_iocb *req)
 	 * In that case, only RCU prevents the queue memory from being freed.
 	 */
 	rcu_read_lock();
-<<<<<<< HEAD
 	head = smp_load_acquire(&req->head); /* BS check patch */
-=======
-	head = smp_load_acquire(&req->head);
->>>>>>> 965798c6c9ea (Merge 4.19.221 into android-4.19-stable)
 	if (head) {
 		spin_lock(&head->lock);
 		if (!list_empty(&req->wait.entry))
@@ -1782,17 +1778,10 @@ static int aio_poll_wake(struct wait_queue_entry *wait, unsigned mode, int sync,
 		 *
 		 * Don't remove the request from the waitqueue here, as it might
 		 * not actually be complete yet (we won't know until vfs_poll()
-<<<<<<< HEAD
-<<<<<<< HEAD
 		 * is called), and we must not miss any wakeups.  POLLFREE is an
 		 * exception to this; see below.
-=======
-		 * is called), and we must not miss any wakeups.
->>>>>>> 580c7e023303 (aio: keep poll requests on waitqueue until completed)
-=======
 		 * is called), and we must not miss any wakeups.  POLLFREE is an
 		 * exception to this; see below.
->>>>>>> 965798c6c9ea (Merge 4.19.221 into android-4.19-stable)
 		 */
 		if (req->work_scheduled) {
 			req->work_need_resched = true;
@@ -1800,10 +1789,6 @@ static int aio_poll_wake(struct wait_queue_entry *wait, unsigned mode, int sync,
 			schedule_work(&req->work);
 			req->work_scheduled = true;
 		}
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> 965798c6c9ea (Merge 4.19.221 into android-4.19-stable)
 
 		/*
 		 * If the waitqueue is being freed early but we can't complete
@@ -1826,11 +1811,6 @@ static int aio_poll_wake(struct wait_queue_entry *wait, unsigned mode, int sync,
 			 */
 			smp_store_release(&req->head, NULL);
 		}
-<<<<<<< HEAD
-=======
->>>>>>> 580c7e023303 (aio: keep poll requests on waitqueue until completed)
-=======
->>>>>>> 965798c6c9ea (Merge 4.19.221 into android-4.19-stable)
 	}
 	return 1;
 }
@@ -1895,22 +1875,10 @@ static ssize_t aio_poll(struct aio_kiocb *aiocb, const struct iocb *iocb)
 
 	mask = vfs_poll(req->file, &apt.pt) & req->events;
 	spin_lock_irq(&ctx->ctx_lock);
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> 965798c6c9ea (Merge 4.19.221 into android-4.19-stable)
 	if (likely(apt.queued)) {
 		bool on_queue = poll_iocb_lock_wq(req);
 
 		if (!on_queue || req->work_scheduled) {
-<<<<<<< HEAD
-=======
-	if (likely(req->head)) {
-		spin_lock(&req->head->lock);
-		if (list_empty(&req->wait.entry) || req->work_scheduled) {
->>>>>>> 580c7e023303 (aio: keep poll requests on waitqueue until completed)
-=======
->>>>>>> 965798c6c9ea (Merge 4.19.221 into android-4.19-stable)
 			/*
 			 * aio_poll_wake() already either scheduled the async
 			 * completion work, or completed the request inline.
@@ -1926,15 +1894,7 @@ static ssize_t aio_poll(struct aio_kiocb *aiocb, const struct iocb *iocb)
 		} else if (cancel) {
 			/* Cancel if possible (may be too late though). */
 			WRITE_ONCE(req->cancelled, true);
-<<<<<<< HEAD
-<<<<<<< HEAD
 		} else if (on_queue) {
-=======
-		} else if (!list_empty(&req->wait.entry)) {
->>>>>>> 580c7e023303 (aio: keep poll requests on waitqueue until completed)
-=======
-		} else if (on_queue) {
->>>>>>> 965798c6c9ea (Merge 4.19.221 into android-4.19-stable)
 			/*
 			 * Actually waiting for an event, so add the request to
 			 * active_reqs so that it can be cancelled if needed.
