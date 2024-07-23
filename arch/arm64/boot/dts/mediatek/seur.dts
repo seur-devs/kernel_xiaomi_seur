@@ -507,6 +507,7 @@
 #include "mediatek/cust_mt6781_camera.dtsi"
 #include "mediatek/cust_foursemi_audio.dtsi"
 #include "mediatek/cust_aw87xxx_audio.dtsi"
+#include "mediatek/mt6885-sia81x9.dtsi"
 
 //#include "mediatek/cust_mt6781_touch_1080x2300.dtsi"
 /*End of this file, DO NOT ADD ANYTHING HERE*/
