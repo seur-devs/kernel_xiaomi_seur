@@ -1393,7 +1393,12 @@ static int mt6781_mt6366_dev_probe(struct platform_device *pdev)
 	}
 
 	card->dev = &pdev->dev;
-
+#if defined(CONFIG_SND_SOC_SIA81XX)
+	ret = soc_aux_init_only_sia81xx(pdev, card);
+	if (ret)
+		dev_err(&pdev->dev, "%s soc_aux_init_only_sia81xx fail %d\n",
+			__func__, ret);
+#endif
 	dev_info(&pdev->dev, "%s(), devm_snd_soc_register_card\n", __func__);
 
 	ret = devm_snd_soc_register_card(&pdev->dev, card);
