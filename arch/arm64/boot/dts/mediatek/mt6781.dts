@@ -5340,7 +5340,7 @@
 //#include "mediatek/mt6360_pd.dtsi"
 #include "mediatek/mt6781-clkitg.dtsi"
 #include "mediatek/rt5133_for_6781.dtsi"
+#include "mediatek/mt6885-sia81x9.dtsi"
 #ifdef CONFIG_MTK_ENABLE_GENIEZONE
 #include "mediatek/trusty.dtsi"
 #endif
-
